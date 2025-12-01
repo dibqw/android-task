@@ -4,18 +4,9 @@ import com.example.android_task.data.services.ApiServices
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
     private const val BASE_URL = "https://api.baubuddy.de/dev/"
-
-//    private val authInterceptor = AuthInterceptor()
-
-//    private val okHttpClient = OkHttpClient.Builder()
-//        .addInterceptor(authInterceptor)
-//        .connectTimeout(30, TimeUnit.SECONDS)
-//        .readTimeout(30, TimeUnit.SECONDS)
-//        .build()
 
     private val tokenAuthenticator = TokenAuthenticator()
 
