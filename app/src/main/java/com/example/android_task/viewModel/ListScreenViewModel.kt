@@ -16,11 +16,13 @@ import com.example.android_task.utils.AuthTokenProvider
 import com.example.android_task.utils.RetrofitInstance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ListScreenViewModel(
     private val db: AppDatabase
-): ViewModel() {
+) : ViewModel() {
 
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
@@ -39,6 +41,7 @@ class ListScreenViewModel(
             }
         }
     }
+
     private val _tasks = MutableLiveData<List<SelectTask>>()
     val tasks: LiveData<List<SelectTask>> = _tasks
 
@@ -53,7 +56,9 @@ class ListScreenViewModel(
                 if (response.isSuccessful) {
                     val token = response.body()?.oauth?.accessToken
                     AuthTokenProvider.accessToken = token
-                    fetchTasks() // Call authorized endpoint
+                    viewModelScope.launch {
+                        fetchTasks() // Call authorized endpoint
+                    }
                 }
             } catch (e: Exception) {
                 // Handle initial login failure
@@ -62,12 +67,10 @@ class ListScreenViewModel(
     }
 
     fun fetchTasks() {
-        viewModelScope.launch {
-            ApiServiceImpl.getAllTasks { tasks ->
-                _tasks.value = tasks
-                CoroutineScope(Dispatchers.IO).launch {
-                    db.taskDao().insertAll(tasks)
-                }
+        ApiServiceImpl.getAllTasks { tasks ->
+            _tasks.value = tasks
+            CoroutineScope(Dispatchers.IO).launch {
+                db.taskDao().insertAll(tasks)
             }
         }
     }
@@ -87,4 +90,17 @@ class ListScreenViewModel(
             }
         }
     }
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
+
+    fun onRefresh() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            fetchTasks()
+            _isRefreshing.value = false
+        }
+    }
+
+
 }

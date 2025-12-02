@@ -22,7 +22,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_task.R
 import com.example.android_task.data.entity.SelectTask
@@ -49,9 +52,10 @@ import com.example.android_task.utils.convertToColor
 fun ListScreen(
     viewModel: ListScreenViewModel = viewModel(factory = ListScreenViewModel.Factory)
 ) {
-    val listTasks = viewModel.tasks.observeAsState(emptyList())
     var searchBarVisible by rememberSaveable { mutableStateOf(false) }
 
+    val listTasks = viewModel.tasks.observeAsState(emptyList())
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.observeAsState("")
 
     Scaffold(
@@ -101,26 +105,38 @@ fun ListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            listTasks = listTasks.value
+            listTasks = listTasks.value,
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.onRefresh() }
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LazyList(
     modifier: Modifier,
-    listTasks: List<SelectTask>
+    listTasks: List<SelectTask>,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        items(listTasks) { task ->
-            ItemCard(
-                task.task,
-                task.title,
-                task.description,
-                task.colorCode.convertToColor()
-            )
+        LazyColumn(
+            modifier = modifier
+        ) {
+            items(listTasks) { task ->
+                ItemCard(
+                    task.task,
+                    task.title,
+                    task.description,
+                    task.colorCode.convertToColor()
+                )
+            }
         }
     }
 }
@@ -188,13 +204,25 @@ fun ItemCard(
 @Composable
 private fun PreviewList() {
     AndroidtaskTheme {
-        Column(Modifier.fillMaxSize()) {
-            ItemCard(
-                task = "task",
-                title = "Title",
-                description = "description rbetb rvetbvet ervetge erverv rvrv brbrtbrtr  eee5gb egegee5g ree5ge5ge5g eee5e5ge5",
-                color = Color.Blue
+//        Column(Modifier.fillMaxSize()) {
+            LazyList(
+                modifier = Modifier.fillMaxSize(),
+                listTasks = listOf(
+                    SelectTask(
+                        1,
+                        "task",
+                        "title",
+                        "description",
+                        "")),
+                isRefreshing = false,
+                onRefresh = {}
             )
-        }
+//            ItemCard(
+//                task = "task",
+//                title = "Title",
+//                description = "description rbetb rvetbvet ervetge erverv rvrv brbrtbrtr  eee5gb egegee5g ree5ge5ge5g eee5e5ge5",
+//                color = Color.Blue
+//            )
+//        }
     }
 }

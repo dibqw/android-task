@@ -22,7 +22,7 @@ class ApiServiceImpl {
                         if (response.isSuccessful) {
                             val tasks = response.body()
                             tasks?.forEach {
-                                Log.d("MainActivity", "Category: ${it.title}")
+                                Log.d("MainActivity", "Task: ${it.title}")
                             }
                         } else {
                             Log.e("MainActivity", "Request failed with code: ${response.code()}")
