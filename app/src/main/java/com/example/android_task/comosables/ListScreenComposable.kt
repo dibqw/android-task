@@ -2,7 +2,6 @@ package com.example.android_task.comosables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -42,14 +40,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_task.R
 import com.example.android_task.data.entity.SelectTask
-import com.example.viewModel.ListScreenViewModel
+import com.example.android_task.viewModel.ListScreenViewModel
 import com.example.android_task.ui.theme.AndroidtaskTheme
 import com.example.android_task.utils.convertToColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
-    viewModel: ListScreenViewModel = viewModel()
+    viewModel: ListScreenViewModel = viewModel(factory = ListScreenViewModel.Factory)
 ) {
     val listTasks = viewModel.tasks.observeAsState(emptyList())
     var searchBarVisible by rememberSaveable { mutableStateOf(false) }
