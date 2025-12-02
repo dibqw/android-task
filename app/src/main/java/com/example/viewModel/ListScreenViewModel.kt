@@ -1,6 +1,5 @@
-package com.example.android_task
+package com.example.viewModel
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -61,9 +60,22 @@ class ListScreenViewModel: ViewModel() {
 
     fun fetchTasks() {
         viewModelScope.launch {
-            ApiServiceImpl.getAllTasks { tasks ->
+            ApiServiceImpl.Companion.getAllTasks { tasks ->
                 _tasks.value = tasks
             }
+        }
+    }
+
+    private val _searchQuery = MutableLiveData<String>()
+    val searchQuery: LiveData<String> = _searchQuery
+
+    fun onQueryChanged(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun search(query: String) {
+        viewModelScope.launch {
+            _tasks.value = _tasks.value?.filter { it.title.contains(query) }
         }
     }
 }

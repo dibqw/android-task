@@ -1,7 +1,8 @@
-package com.example.android_task
+package com.example.android_task.comosables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,31 +11,112 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.android_task.R
+import com.example.android_task.data.entity.SelectTask
+import com.example.viewModel.ListScreenViewModel
 import com.example.android_task.ui.theme.AndroidtaskTheme
 import com.example.android_task.utils.convertToColor
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
-    viewModel: ListScreenViewModel
+    viewModel: ListScreenViewModel = viewModel()
 ) {
     val listTasks = viewModel.tasks.observeAsState(emptyList())
+    var searchBarVisible by rememberSaveable { mutableStateOf(false) }
+
+    val searchQuery by viewModel.searchQuery.observeAsState("")
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            if (searchBarVisible) {
+                MySearchBar(
+                    searchQuery,
+                    { viewModel.onQueryChanged(it) },
+                    { viewModel.search(it) },
+                    { searchBarVisible = false }
+                )
+            } else {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    title = {
+                        Text(
+                            "App Bar",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = { searchBarVisible = !searchBarVisible }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                contentDescription = "Search"
+                            )
+                        }
+                        IconButton(onClick = { }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.qr_code_24px),
+                                contentDescription = "Scan QR Code"
+                            )
+                        }
+                    },
+                )
+            }
+        }
+    ) { innerPadding ->
+        LazyList(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            listTasks = listTasks.value
+        )
+    }
+}
+
+@Composable
+fun LazyList(
+    modifier: Modifier,
+    listTasks: List<SelectTask>
+) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
     ) {
-        items(listTasks.value) { task ->
+        items(listTasks) { task ->
             ItemCard(
                 task.task,
                 task.title,
