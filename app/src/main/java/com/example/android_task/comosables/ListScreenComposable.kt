@@ -66,7 +66,11 @@ fun ListScreen(
                     searchQuery,
                     { viewModel.onQueryChanged(it) },
                     { viewModel.search(it) },
-                    { searchBarVisible = false }
+                    {
+                        searchBarVisible = false
+                        viewModel.onQueryChanged("")
+                        viewModel.fetchTasks()
+                    }
                 )
             } else {
                 TopAppBar(

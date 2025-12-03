@@ -8,11 +8,9 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.room.Room
-import com.example.android_task.data.entity.LoginRequest
 import com.example.android_task.data.entity.SelectTask
-import com.example.android_task.data.services.ApiServiceImpl
+import com.example.android_task.data.repos.TasksRepo
 import com.example.android_task.utils.AppDatabase
-import com.example.android_task.utils.AuthTokenProvider
 import com.example.android_task.utils.RetrofitInstance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ListScreenViewModel(
-    private val db: AppDatabase
+    private val taskRepo: TasksRepo
 ) : ViewModel() {
 
     companion object {
@@ -32,11 +30,15 @@ class ListScreenViewModel(
                 extras: CreationExtras
             ): T {
                 val applicationContext = checkNotNull(extras[APPLICATION_KEY])
+                val db = Room.databaseBuilder(
+                    applicationContext,
+                    AppDatabase::class.java, "tasks-database"
+                ).build()
                 return ListScreenViewModel(
-                    db = Room.databaseBuilder(
-                        applicationContext,
-                        AppDatabase::class.java, "tasks-database"
-                    ).build()
+                    taskRepo = TasksRepo(
+                        taskDao = db.taskDao(),
+                        apiService = RetrofitInstance.apiService
+                    )
                 ) as T
             }
         }
@@ -48,30 +50,15 @@ class ListScreenViewModel(
 
     init {
         viewModelScope.launch {
-            try {
-                // Perform initial login explicitly to get the *first* token
-                val loginRequest = LoginRequest("365", "1")
-                val response = RetrofitInstance.apiService.login(loginRequest)
-
-                if (response.isSuccessful) {
-                    val token = response.body()?.oauth?.accessToken
-                    AuthTokenProvider.accessToken = token
-                    viewModelScope.launch {
-                        fetchTasks() // Call authorized endpoint
-                    }
-                }
-            } catch (e: Exception) {
-                // Handle initial login failure
-            }
+            taskRepo.refreshTasks()
+            _tasks.value = taskRepo.getTasks()
         }
     }
 
     fun fetchTasks() {
-        ApiServiceImpl.getAllTasks { tasks ->
-            _tasks.value = tasks
-            CoroutineScope(Dispatchers.IO).launch {
-                db.taskDao().insertAll(tasks)
-            }
+        viewModelScope.launch {
+            taskRepo.refreshTasks()
+            _tasks.value = taskRepo.getTasks()
         }
     }
 
@@ -86,7 +73,7 @@ class ListScreenViewModel(
         viewModelScope.launch {
             CoroutineScope(Dispatchers.IO).launch {
                 val searchQuery = "%$query%"
-                _tasks.postValue(db.taskDao().findByQuery(searchQuery))
+                _tasks.postValue(taskRepo.getTasksByQuery(searchQuery))
             }
         }
     }
