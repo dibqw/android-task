@@ -1,5 +1,6 @@
 package com.example.android_task.comosables
 
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,12 +25,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,17 +43,39 @@ import com.example.android_task.data.entity.SelectTask
 import com.example.android_task.viewModel.ListScreenViewModel
 import com.example.android_task.ui.theme.AndroidtaskTheme
 import com.example.android_task.utils.convertToColor
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
     viewModel: ListScreenViewModel = viewModel(factory = ListScreenViewModel.Factory)
 ) {
-    var searchBarVisible by rememberSaveable { mutableStateOf(false) }
-
     val listTasks = viewModel.tasks.observeAsState(emptyList())
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val searchBarVisible by viewModel.searchBarVisible.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.observeAsState("")
+
+    val scanLauncher = rememberLauncherForActivityResult(
+        contract = ScanContract(),
+        onResult = { result ->
+            // Send the result to the ViewModel for processing
+            viewModel.handleScanResult(result.contents)
+        }
+    )
+
+    val startScanAction: () -> Unit = {
+        scanLauncher.launch(
+            ScanOptions()
+                .apply {
+                    setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES)
+//                    setPrompt("Scan a QR Code")
+//                    setCameraId(0)
+                    setBeepEnabled(true)
+                    setOrientationLocked(false)
+                }
+        )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -67,7 +86,7 @@ fun ListScreen(
                     { viewModel.onQueryChanged(it) },
                     { viewModel.search(it) },
                     {
-                        searchBarVisible = false
+                        viewModel.toggleSearchBarVisibility()
                         viewModel.onQueryChanged("")
                         viewModel.fetchTasks()
                     }
@@ -87,14 +106,14 @@ fun ListScreen(
                     },
                     actions = {
                         IconButton(
-                            onClick = { searchBarVisible = !searchBarVisible }
+                            onClick = { viewModel.toggleSearchBarVisibility() }
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Search,
                                 contentDescription = "Search"
                             )
                         }
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = { startScanAction() }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.qr_code_24px),
                                 contentDescription = "Scan QR Code"
@@ -170,35 +189,43 @@ fun ItemCard(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = task,
+            Text(
+                text = task,
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center
             )
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Title: ",
+                Text(
+                    text = "Title: ",
                     Modifier.padding(end = 5.dp),
                     style = MaterialTheme.typography.titleSmall,
-                    )
-                Text(text = title,
+                )
+                Text(
+                    text = title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
-                    )
+                )
             }
-            Column (
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(10.dp),
             ) {
-                Text(text = "Description: ",
+                Text(
+                    text = "Description: ",
                     Modifier.padding(end = 5.dp),
                     style = MaterialTheme.typography.titleSmall
-                    )
-                Text(text = description,
+                )
+                Text(
+                    text = description,
                     Modifier.padding(10.dp),
-                    style = MaterialTheme.typography.bodyMedium,)
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
     }
@@ -209,18 +236,20 @@ fun ItemCard(
 private fun PreviewList() {
     AndroidtaskTheme {
 //        Column(Modifier.fillMaxSize()) {
-            LazyList(
-                modifier = Modifier.fillMaxSize(),
-                listTasks = listOf(
-                    SelectTask(
-                        1,
-                        "task",
-                        "title",
-                        "description",
-                        "")),
-                isRefreshing = false,
-                onRefresh = {}
-            )
+        LazyList(
+            modifier = Modifier.fillMaxSize(),
+            listTasks = listOf(
+                SelectTask(
+                    1,
+                    "task",
+                    "title",
+                    "description",
+                    ""
+                )
+            ),
+            isRefreshing = false,
+            onRefresh = {}
+        )
 //            ItemCard(
 //                task = "task",
 //                title = "Title",

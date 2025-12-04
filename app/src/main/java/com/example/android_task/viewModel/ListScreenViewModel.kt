@@ -1,5 +1,6 @@
 package com.example.android_task.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -89,5 +90,24 @@ class ListScreenViewModel(
         }
     }
 
+    private val _searchBarVisible = MutableStateFlow(false)
+    val searchBarVisible: StateFlow<Boolean> = _searchBarVisible
+
+    fun toggleSearchBarVisibility() {
+        _searchBarVisible.value = !_searchBarVisible.value
+    }
+
+    fun handleScanResult(contents: String?) {
+        viewModelScope.launch {
+            if (contents != null) {
+                Log.e("Scanner", "Scanned: $contents")
+                _searchQuery.value = contents
+                _searchBarVisible.value = true
+                search(contents)
+            } else {
+                Log.e("MainActivity", "Scan failed")
+            }
+        }
+    }
 
 }

@@ -84,4 +84,8 @@ dependencies {
     // See Add the KSP plugin to your project
     ksp(libs.androidx.room.compiler)
 
+    //Zxing qr code scanner
+    implementation(libs.zxing.android.embedded)
+    implementation(libs.core)
+
 }
