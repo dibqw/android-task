@@ -12,44 +12,37 @@ import androidx.room.Room
 import com.example.android_task.data.entity.SelectTask
 import com.example.android_task.data.repos.TasksRepo
 import com.example.android_task.utils.AppDatabase
-import com.example.android_task.utils.RetrofitInstance
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class ListScreenViewModel(
-    private val taskRepo: TasksRepo
+@HiltViewModel
+class ListScreenViewModel @Inject constructor(
+    private val taskRepo: TasksRepo,
+//    private val workManager: WorkManager
 ) : ViewModel() {
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
-            ): T {
-                val applicationContext = checkNotNull(extras[APPLICATION_KEY])
-                val db = Room.databaseBuilder(
-                    applicationContext,
-                    AppDatabase::class.java, "tasks-database"
-                ).build()
-                return ListScreenViewModel(
-                    taskRepo = TasksRepo(
-                        taskDao = db.taskDao(),
-                        apiService = RetrofitInstance.apiService
-                    )
-                ) as T
-            }
-        }
-    }
 
     private val _tasks = MutableLiveData<List<SelectTask>>()
     val tasks: LiveData<List<SelectTask>> = _tasks
 
 
     init {
+
+//        val uploadWorkRequest: WorkRequest =
+//            PeriodicWorkRequestBuilder<RequestResourcesWorker>(
+//                1,
+//                TimeUnit.HOURS
+//            )
+////                    .setInputData()
+//                .build()
+//
+//        workManager.enqueue(uploadWorkRequest)
+
         viewModelScope.launch {
             taskRepo.refreshTasks()
             _tasks.value = taskRepo.getTasks()

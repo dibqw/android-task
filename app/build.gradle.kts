@@ -2,8 +2,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)    // Replace kapt with ksp
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 
@@ -36,9 +37,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-//    kotlinOptions {
-//        jvmTarget = "11"
+
+    // Add annotation processor options to avoid overriding Hilt arguments
+    //Workaround to resolve a specific Hilt compiler error that can occur when the compiler struggles to verify your class inheritance chain.
+    //Probably caused by the external library Zxing
+//    ksp {
+//        arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
 //    }
+
     buildFeatures {
         compose = true
     }
@@ -87,5 +93,11 @@ dependencies {
     //Zxing qr code scanner
     implementation(libs.zxing.android.embedded)
     implementation(libs.core)
+
+    //Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    //Hilt androidx
+    implementation(libs.androidx.hilt.navigation.compose)
 
 }

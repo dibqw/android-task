@@ -36,8 +36,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_task.R
 import com.example.android_task.data.entity.SelectTask
 import com.example.android_task.viewModel.ListScreenViewModel
@@ -49,7 +49,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
-    viewModel: ListScreenViewModel = viewModel(factory = ListScreenViewModel.Factory)
+    viewModel: ListScreenViewModel = hiltViewModel()
 ) {
     val listTasks = viewModel.tasks.observeAsState(emptyList())
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()

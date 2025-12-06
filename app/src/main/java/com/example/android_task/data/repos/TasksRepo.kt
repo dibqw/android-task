@@ -6,12 +6,12 @@ import com.example.android_task.data.entity.LoginRequest
 import com.example.android_task.data.entity.SelectTask
 import com.example.android_task.data.services.ApiServices
 import com.example.android_task.utils.AuthTokenProvider
-import com.example.android_task.utils.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import javax.inject.Inject
 
-class TasksRepo(
+class TasksRepo @Inject constructor(
     private val taskDao: SelectTaskDAO,
     private val apiService: ApiServices
 ) {

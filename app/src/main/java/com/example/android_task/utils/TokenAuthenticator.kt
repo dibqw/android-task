@@ -11,22 +11,13 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TokenAuthenticator : Authenticator {
-
-    // A separate, clean OkHttpClient instance just for the synchronous login call.
-    // It must NOT have this Authenticator attached to avoid a loop.
-    private val loginClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
-        .build()
-
-    private val loginRetrofit: Retrofit = Retrofit.Builder()
-        .baseUrl("https://api.baubuddy.de/dev/")
-        .client(loginClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    private val loginService: ApiServices = loginRetrofit.create(ApiServices::class.java)
+@Singleton
+class TokenAuthenticator @Inject constructor(
+    private val loginService: ApiServices
+) : Authenticator {
 
     // This runs synchronously when a 401 is received
     override fun authenticate(route: Route?, response: Response): Request? {
