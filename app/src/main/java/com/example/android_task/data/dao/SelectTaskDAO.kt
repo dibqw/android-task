@@ -4,14 +4,15 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.android_task.data.entity.SelectTask
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SelectTaskDAO {
     @Query("SELECT * FROM tasks")
-    fun getAll(): List<SelectTask>
+    fun getAll(): Flow<List<SelectTask>>
 
     @Query("SELECT * FROM tasks WHERE task LIKE :searchQuery OR title LIKE :searchQuery OR description LIKE :searchQuery")
-    fun findByQuery(searchQuery: String): List<SelectTask>
+    fun findByQuery(searchQuery: String): Flow<List<SelectTask>>
 
     @Insert
     fun insertAll(tasksList: List<SelectTask>)

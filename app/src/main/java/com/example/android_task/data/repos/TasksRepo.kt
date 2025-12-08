@@ -7,6 +7,7 @@ import com.example.android_task.data.entity.SelectTask
 import com.example.android_task.data.services.ApiServices
 import com.example.android_task.utils.AuthTokenProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
@@ -16,16 +17,21 @@ class TasksRepo @Inject constructor(
     private val apiService: ApiServices
 ) {
     // The stream of data from the database
-    suspend fun getTasks(): List<SelectTask> {
-        return withContext(Dispatchers.IO) {
-            taskDao.getAll()
-        }
+//    suspend fun getTasks(): List<SelectTask> {
+//        return withContext(Dispatchers.IO) {
+//            taskDao.getAll()
+//        }
+//    }
+
+    fun getTasks(): Flow<List<SelectTask>> {
+        return taskDao.getAll()
     }
 
-    suspend fun getTasksByQuery(query: String): List<SelectTask> {
-        return withContext(Dispatchers.IO) {
-            taskDao.findByQuery(query)
-        }
+    suspend fun getTasksByQuery(query: String): Flow<List<SelectTask>> {
+        return taskDao.findByQuery(query)
+//        return withContext(Dispatchers.IO) {
+//            taskDao.findByQuery(query)
+//        }
     }
 
     suspend fun refreshTasks() {

@@ -51,10 +51,12 @@ import com.journeyapps.barcodescanner.ScanOptions
 fun ListScreen(
     viewModel: ListScreenViewModel = hiltViewModel()
 ) {
-    val listTasks = viewModel.tasks.observeAsState(emptyList())
+//    val listTasks = viewModel.tasks.observeAsState(emptyList())
+    val listTasks = viewModel.listToDisplay.collectAsStateWithLifecycle(emptyList())
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val searchBarVisible by viewModel.searchBarVisible.collectAsStateWithLifecycle()
-    val searchQuery by viewModel.searchQuery.observeAsState("")
+//    val searchQuery by viewModel.searchQuery.observeAsState("")
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
 
     val scanLauncher = rememberLauncherForActivityResult(
         contract = ScanContract(),
@@ -84,7 +86,9 @@ fun ListScreen(
                 MySearchBar(
                     searchQuery,
                     { viewModel.onQueryChanged(it) },
-                    { viewModel.search(it) },
+                    {
+//                        viewModel.search(it)
+                    },
                     {
                         viewModel.toggleSearchBarVisibility()
                         viewModel.onQueryChanged("")

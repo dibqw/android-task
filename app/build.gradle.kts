@@ -97,7 +97,13 @@ dependencies {
     //Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    //Hilt androidx
+
+    //Hilt androidx for compose view model
     implementation(libs.androidx.hilt.navigation.compose)
+
+    //For the work
+    ksp(libs.androidx.hilt.compiler)
+    implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.work.runtime.ktx)
 
 }
