@@ -1,24 +1,15 @@
 package com.example.android_task.viewModel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.room.Room
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import com.example.android_task.data.entity.SelectTask
 import com.example.android_task.data.repos.TasksRepo
-import com.example.android_task.utils.AppDatabase
 import com.example.android_task.work.GetDataWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,10 +29,6 @@ class ListScreenViewModel @Inject constructor(
     private val workManager: WorkManager
 ) : ViewModel() {
 
-//    private val _tasks = MutableLiveData<List<SelectTask>>()
-//    val tasks: LiveData<List<SelectTask>> = _tasks
-
-
     init {
         viewModelScope.launch {
         val uploadWorkRequest: WorkRequest =
@@ -49,20 +36,9 @@ class ListScreenViewModel @Inject constructor(
                 1,
                 TimeUnit.HOURS
             )
-//                    .setInputData()
                 .build()
 
         workManager.enqueue(uploadWorkRequest)
-
-//            taskRepo.refreshTasks()
-//            _tasks.value = taskRepo.getTasks()
-        }
-    }
-
-    fun fetchTasks() {
-        viewModelScope.launch {
-            taskRepo.refreshTasks()
-//            _tasks.value = taskRepo.getTasks()
         }
     }
 
@@ -80,12 +56,25 @@ class ListScreenViewModel @Inject constructor(
             .distinctUntilChanged()
             .combine(taskRepo.getTasks()) {query, list ->
                 if (query.isBlank()) {
-                    Log.e("ListScreenViewModel1", "Query: $query")
                     list
                 }else {
-                    Log.e("ListScreenViewModel2", "Query: $query")
                     list.filter{
-                        item -> item.title.contains(query, ignoreCase = true)
+                        item ->
+                        item.title.equals(query, ignoreCase = true) ||
+                                item.task.equals(query, true) ||
+                                item.description.equals(query, true) ||
+                                item.wageType.equals(query, true) ||
+                                item.sort.toString().equals(query, true) ||
+                                item.wageType.equals(query, true) ||
+                                item.businessUnitKey?.equals(query, true) == true ||
+                                item.businessUnit.equals(query, true) ||
+                                item.parentTaskID.equals(query, true) ||
+                                item.preplanningBoardQuickSelect?.equals(query, true) == true ||
+                                item.colorCode.equals(query, true) ||
+                                item.workingTime?.equals(query, true) == true ||
+                                item.externalId.toString().equals(query, true) ||
+                                item.isAvailableInTimeTrackingKioskMode && query.equals("is Available", true) ||
+                                item.isAbstract && query.equals("is Abstract", true)
                     }
                 }
             }
@@ -95,22 +84,13 @@ class ListScreenViewModel @Inject constructor(
                 initialValue = emptyList()
             )
 
-//    fun search(query: String) {
-//        viewModelScope.launch {
-//            CoroutineScope(Dispatchers.IO).launch {
-//                val searchQuery = "%$query%"
-//                _tasks.postValue(taskRepo.getTasksByQuery(searchQuery))
-//            }
-//        }
-//    }
-
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     fun onRefresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            fetchTasks()
+            taskRepo.refreshTasks()
             _isRefreshing.value = false
         }
     }
@@ -128,7 +108,6 @@ class ListScreenViewModel @Inject constructor(
                 Log.e("Scanner", "Scanned: $contents")
                 _searchQuery.value = contents
                 _searchBarVisible.value = true
-//                search(contents)
             } else {
                 Log.e("MainActivity", "Scan failed")
             }

@@ -16,22 +16,9 @@ class TasksRepo @Inject constructor(
     private val taskDao: SelectTaskDAO,
     private val apiService: ApiServices
 ) {
-    // The stream of data from the database
-//    suspend fun getTasks(): List<SelectTask> {
-//        return withContext(Dispatchers.IO) {
-//            taskDao.getAll()
-//        }
-//    }
 
     fun getTasks(): Flow<List<SelectTask>> {
         return taskDao.getAll()
-    }
-
-    suspend fun getTasksByQuery(query: String): Flow<List<SelectTask>> {
-        return taskDao.findByQuery(query)
-//        return withContext(Dispatchers.IO) {
-//            taskDao.findByQuery(query)
-//        }
     }
 
     suspend fun refreshTasks() {

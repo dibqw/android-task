@@ -92,7 +92,7 @@ fun ListScreen(
                     {
                         viewModel.toggleSearchBarVisibility()
                         viewModel.onQueryChanged("")
-                        viewModel.fetchTasks()
+//                            viewModel.fetchTasks()
                     }
                 )
             } else {
@@ -240,20 +240,20 @@ fun ItemCard(
 private fun PreviewList() {
     AndroidtaskTheme {
 //        Column(Modifier.fillMaxSize()) {
-        LazyList(
-            modifier = Modifier.fillMaxSize(),
-            listTasks = listOf(
-                SelectTask(
-                    1,
-                    "task",
-                    "title",
-                    "description",
-                    ""
-                )
-            ),
-            isRefreshing = false,
-            onRefresh = {}
-        )
+//        LazyList(
+//            modifier = Modifier.fillMaxSize(),
+//            listTasks = listOf(
+//                SelectTask(
+//                    1,
+//                    "task",
+//                    "title",
+//                    "description",
+//                    ""
+//                )
+//            ),
+//            isRefreshing = false,
+//            onRefresh = {}
+//        )
 //            ItemCard(
 //                task = "task",
 //                title = "Title",

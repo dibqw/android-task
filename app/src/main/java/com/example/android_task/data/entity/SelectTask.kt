@@ -6,11 +6,36 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 @Entity(tableName = "tasks")
 data class SelectTask(
-    @PrimaryKey(autoGenerate = true) val uid: Int,
-    @ColumnInfo(name = "task")
-    @SerializedName("task")
-        val task: String,
-    @ColumnInfo(name = "title")@SerializedName("title") val title: String,
-    @ColumnInfo(name = "description")@SerializedName("description") val description: String,
-    @ColumnInfo(name = "colorCode")@SerializedName("colorCode") val colorCode: String
+    @PrimaryKey(autoGenerate = true)
+    val uid: Int,
+    val task: String,
+    val title: String,
+    val description: String,
+    val sort: Int,
+    val wageType: String,
+    @ColumnInfo(name = "businessUnitKey")
+    @SerializedName("BusinessUnitKey")
+    val businessUnitKey: String?,
+    val businessUnit: String,
+    val parentTaskID: String,
+    val preplanningBoardQuickSelect: String?,
+    val colorCode: String,
+    val workingTime: String?,
+    val isAvailableInTimeTrackingKioskMode: Boolean,
+    val isAbstract: Boolean,
+    val externalId: Int?
+
+
+
+//"sort": "0",
+//"BusinessUnitKey": "Gerüstbau",
+//"businessUnit": "Gerüstbau",
+//"parentTaskID": "",
+//"preplanningBoardQuickSelect": null,
+//"colorCode": "",
+//"workingTime": null,
+//"isAvailableInTimeTrackingKioskMode": false,
+//"isAbstract": false,
+//"externalId": null
+
 )
