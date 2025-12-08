@@ -26,7 +26,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,17 +50,14 @@ import com.journeyapps.barcodescanner.ScanOptions
 fun ListScreen(
     viewModel: ListScreenViewModel = hiltViewModel()
 ) {
-//    val listTasks = viewModel.tasks.observeAsState(emptyList())
     val listTasks = viewModel.listToDisplay.collectAsStateWithLifecycle(emptyList())
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val searchBarVisible by viewModel.searchBarVisible.collectAsStateWithLifecycle()
-//    val searchQuery by viewModel.searchQuery.observeAsState("")
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
 
     val scanLauncher = rememberLauncherForActivityResult(
         contract = ScanContract(),
         onResult = { result ->
-            // Send the result to the ViewModel for processing
             viewModel.handleScanResult(result.contents)
         }
     )
@@ -71,8 +67,6 @@ fun ListScreen(
             ScanOptions()
                 .apply {
                     setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES)
-//                    setPrompt("Scan a QR Code")
-//                    setCameraId(0)
                     setBeepEnabled(true)
                     setOrientationLocked(false)
                 }
@@ -87,12 +81,10 @@ fun ListScreen(
                     searchQuery,
                     { viewModel.onQueryChanged(it) },
                     {
-//                        viewModel.search(it)
                     },
                     {
                         viewModel.toggleSearchBarVisibility()
                         viewModel.onQueryChanged("")
-//                            viewModel.fetchTasks()
                     }
                 )
             } else {
@@ -239,27 +231,31 @@ fun ItemCard(
 @Composable
 private fun PreviewList() {
     AndroidtaskTheme {
-//        Column(Modifier.fillMaxSize()) {
-//        LazyList(
-//            modifier = Modifier.fillMaxSize(),
-//            listTasks = listOf(
-//                SelectTask(
-//                    1,
-//                    "task",
-//                    "title",
-//                    "description",
-//                    ""
-//                )
-//            ),
-//            isRefreshing = false,
-//            onRefresh = {}
-//        )
-//            ItemCard(
-//                task = "task",
-//                title = "Title",
-//                description = "description rbetb rvetbvet ervetge erverv rvrv brbrtbrtr  eee5gb egegee5g ree5ge5ge5g eee5e5ge5",
-//                color = Color.Blue
-//            )
-//        }
+        Column(Modifier.fillMaxSize()) {
+            LazyList(
+                modifier = Modifier.fillMaxSize(),
+                listTasks = listOf(
+                    SelectTask(
+                        1,
+                        "task",
+                        "title",
+                        "description",
+                        56,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        isAvailableInTimeTrackingKioskMode = false,
+                        isAbstract = false,
+                        externalId = 2
+                    )
+                ),
+                isRefreshing = false,
+                onRefresh = {}
+            )
+        }
     }
 }

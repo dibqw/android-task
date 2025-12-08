@@ -1,6 +1,8 @@
 package com.example.android_task.hilt.modules
 
 import com.example.android_task.data.services.ApiServices
+import com.example.android_task.utils.AuthInterceptor
+import com.example.android_task.utils.AuthTokenProvider
 import com.example.android_task.utils.TokenAuthenticator
 import dagger.Module
 import dagger.Provides
@@ -26,9 +28,10 @@ object NetworkModule {
     @Singleton
     fun provideTokenAuthenticator(
         // Inject the auth-specific ApiService
-        @Named(AUTH_RETROFIT) authApiService: ApiServices
+        @Named(AUTH_RETROFIT) authApiService: ApiServices,
+        authTokenProvider: AuthTokenProvider
     ): TokenAuthenticator {
-        return TokenAuthenticator(authApiService)
+        return TokenAuthenticator(authApiService, authTokenProvider)
     }
 
     @Provides
@@ -43,8 +46,9 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(tokenAuthenticator: TokenAuthenticator): OkHttpClient {
+    fun provideOkHttpClient(tokenAuthenticator: TokenAuthenticator, authInterceptor: AuthInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator)
             .build()
     }

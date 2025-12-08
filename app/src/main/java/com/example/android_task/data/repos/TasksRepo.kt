@@ -2,10 +2,8 @@ package com.example.android_task.data.repos
 
 import android.util.Log
 import com.example.android_task.data.dao.SelectTaskDAO
-import com.example.android_task.data.entity.LoginRequest
 import com.example.android_task.data.entity.SelectTask
 import com.example.android_task.data.services.ApiServices
-import com.example.android_task.utils.AuthTokenProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -25,6 +23,7 @@ class TasksRepo @Inject constructor(
         withContext(Dispatchers.IO) { // Perform network and DB operations on IO dispatcher
             try {
                 val remoteTasksResponse = apiService.getAllTasks() // Fetches from API
+                Log.e("Repo",  "New tasks are fetched")
                 if (remoteTasksResponse.isSuccessful) {
                     taskDao.insertAll(remoteTasksResponse.body()!!) // Inserts into DB, which updates the Flow
                 } else Log.e("RepoGetTasks", "Request failed with code: ${remoteTasksResponse.code()}")

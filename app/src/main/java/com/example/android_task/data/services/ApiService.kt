@@ -12,9 +12,9 @@ import retrofit2.http.POST
 
 interface ApiServices {
 
-    @POST("index.php/login")
-    @Headers("Authorization: Basic QVBJX0V4cGxvcmVyOjEyMzQ1NmlzQUxhbWVQYXNz")
-    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+//    @POST("index.php/login")
+//    @Headers("Authorization: Basic QVBJX0V4cGxvcmVyOjEyMzQ1NmlzQUxhbWVQYXNz")
+//    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
     // 2. For synchronous use in the Authenticator (returns OkHttp Call, NO 'suspend')
     @POST("index.php/login")

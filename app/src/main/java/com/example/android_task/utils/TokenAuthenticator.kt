@@ -1,5 +1,6 @@
 package com.example.android_task.utils
 
+import android.util.Log
 import com.example.android_task.data.entity.LoginRequest
 import com.example.android_task.data.services.ApiServices
 import okhttp3.Authenticator
@@ -16,7 +17,8 @@ import javax.inject.Singleton
 
 @Singleton
 class TokenAuthenticator @Inject constructor(
-    private val loginService: ApiServices
+    private val loginService: ApiServices,
+    private val tokenProvider: AuthTokenProvider
 ) : Authenticator {
 
     // This runs synchronously when a 401 is received
@@ -56,7 +58,8 @@ class TokenAuthenticator @Inject constructor(
                 val newAccessToken = loginResponse.body()?.oauth?.accessToken
                 if (newAccessToken != null) {
                     // Update our singleton provider with the new token
-                    AuthTokenProvider.accessToken = newAccessToken
+                    tokenProvider.setToken(newAccessToken)
+                    Log.e("Authenticator", "New token is generated")
                     return newAccessToken
                 }
             }
