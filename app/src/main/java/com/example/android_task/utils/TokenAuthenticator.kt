@@ -4,13 +4,9 @@ import android.util.Log
 import com.example.android_task.data.entity.LoginRequest
 import com.example.android_task.data.services.ApiServices
 import okhttp3.Authenticator
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton

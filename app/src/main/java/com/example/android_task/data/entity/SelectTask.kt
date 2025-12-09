@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+
 @Entity(tableName = "tasks")
 data class SelectTask(
     @PrimaryKey(autoGenerate = true)
@@ -24,18 +25,4 @@ data class SelectTask(
     val isAvailableInTimeTrackingKioskMode: Boolean,
     val isAbstract: Boolean,
     val externalId: Int?
-
-
-
-//"sort": "0",
-//"BusinessUnitKey": "Gerüstbau",
-//"businessUnit": "Gerüstbau",
-//"parentTaskID": "",
-//"preplanningBoardQuickSelect": null,
-//"colorCode": "",
-//"workingTime": null,
-//"isAvailableInTimeTrackingKioskMode": false,
-//"isAbstract": false,
-//"externalId": null
-
 )
